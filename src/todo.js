@@ -13,11 +13,11 @@ function saveTodos(todos) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(todos, null, 2));
 }
 
-function addTodo(text) {
+function addTodo(text, description) {
   const todos = loadTodos();
-  todos.push({ id: Date.now(), text, done: false });
+  todos.push({ id: Date.now(), text, description: description || "", done: false });
   saveTodos(todos);
-  console.log(`Added: "${text}"`);
+  console.log(`Added: "${text}"${description ? ` - ${description}` : ""}`);
 }
 
 function listTodos() {
@@ -29,6 +29,9 @@ function listTodos() {
   todos.forEach((todo, i) => {
     const mark = todo.done ? "[x]" : "[ ]";
     console.log(`${i + 1}. ${mark} ${todo.text}`);
+    if (todo.description) {
+      console.log(`     ${todo.description}`);
+    }
   });
 }
 
@@ -58,7 +61,7 @@ function removeTodo(index) {
 
 function printHelp() {
   console.log(`Usage:
-  node src/todo.js add "task text"
+  node src/todo.js add "task text" ["description"]
   node src/todo.js list
   node src/todo.js done <number>
   node src/todo.js remove <number>`);
@@ -68,7 +71,7 @@ const [, , command, ...args] = process.argv;
 
 switch (command) {
   case "add":
-    args.length ? addTodo(args.join(" ")) : printHelp();
+    args.length ? addTodo(args[0], args[1]) : printHelp();
     break;
   case "list":
     listTodos();

@@ -30,18 +30,21 @@
   }
   .input-row {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     margin-bottom: 16px;
   }
-  #taskInput {
-    flex: 1;
+  #taskInput,
+  #descInput {
     padding: 10px 12px;
     border: 1px solid #d9d9d9;
     border-radius: 8px;
     font-size: 14px;
     outline: none;
+    font-family: inherit;
   }
-  #taskInput:focus {
+  #taskInput:focus,
+  #descInput:focus {
     border-color: #6c5ce7;
   }
   #addBtn {
@@ -52,26 +55,45 @@
     border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
+    align-self: flex-end;
   }
   #addBtn:hover { background: #5b4bd1; }
   ul { list-style: none; padding: 0; margin: 0; }
   li {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     padding: 10px 8px;
     border-bottom: 1px solid #eee;
   }
   li:last-child { border-bottom: none; }
-  li span {
+  li input[type="checkbox"] {
+    margin-top: 3px;
+  }
+  .task-text {
     flex: 1;
+    min-width: 0;
+  }
+  .task-text .title {
+    display: block;
     font-size: 14px;
     color: #333;
     word-break: break-word;
   }
-  li.done span {
+  .task-text .desc {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    word-break: break-word;
+    margin-top: 2px;
+  }
+  li.done .title {
     text-decoration: line-through;
     color: #999;
+  }
+  li.done .desc {
+    text-decoration: line-through;
+    color: #bbb;
   }
   li input[type="checkbox"] {
     width: 18px;
@@ -106,6 +128,7 @@
     <h1>My To-Do List</h1>
     <div class="input-row">
       <input type="text" id="taskInput" placeholder="Add a new task..." maxlength="200">
+      <input type="text" id="descInput" placeholder="Description (optional)" maxlength="500">
       <button id="addBtn">Add</button>
     </div>
     <ul id="taskList"></ul>
@@ -115,6 +138,7 @@
 <script>
   const STORAGE_KEY = "todos";
   const taskInput = document.getElementById("taskInput");
+  const descInput = document.getElementById("descInput");
   const addBtn = document.getElementById("addBtn");
   const taskList = document.getElementById("taskList");
   const stats = document.getElementById("stats");
@@ -143,15 +167,27 @@
         checkbox.checked = todo.done;
         checkbox.addEventListener("change", () => toggleDone(todo.id));
 
-        const span = document.createElement("span");
-        span.textContent = todo.text;
+        const textBlock = document.createElement("div");
+        textBlock.className = "task-text";
+
+        const title = document.createElement("span");
+        title.className = "title";
+        title.textContent = todo.text;
+        textBlock.appendChild(title);
+
+        if (todo.description) {
+          const desc = document.createElement("span");
+          desc.className = "desc";
+          desc.textContent = todo.description;
+          textBlock.appendChild(desc);
+        }
 
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "delete-btn";
         deleteBtn.textContent = "✕";
         deleteBtn.addEventListener("click", () => removeTodo(todo.id));
 
-        li.append(checkbox, span, deleteBtn);
+        li.append(checkbox, textBlock, deleteBtn);
         taskList.appendChild(li);
       });
     }
@@ -164,11 +200,13 @@
 
   function addTodo() {
     const text = taskInput.value.trim();
+    const description = descInput.value.trim();
     if (!text) return;
     const todos = loadTodos();
-    todos.push({ id: Date.now(), text, done: false });
+    todos.push({ id: Date.now(), text, description, done: false });
     saveTodos(todos);
     taskInput.value = "";
+    descInput.value = "";
     render();
   }
 
@@ -188,6 +226,9 @@
 
   addBtn.addEventListener("click", addTodo);
   taskInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") addTodo();
+  });
+  descInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") addTodo();
   });
 
