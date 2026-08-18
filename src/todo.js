@@ -6,11 +6,11 @@ const DATA_FILE = path.join(__dirname, "..", "todos.json");
 function loadTodos() {
   if (!fs.existsSync(DATA_FILE)) return [];
   return JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-}
+
 
 function saveTodos(todos) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(todos, null, 2));
-}
+
 
 function addTodo(text) {
   const todos = loadTodos();
