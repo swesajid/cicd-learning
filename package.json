@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --check src/index.js && node --check src/todo.js && echo \"All checks passed\""
   },
   "keywords": [],
   "author": "",
