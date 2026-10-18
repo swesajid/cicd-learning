@@ -38,7 +38,7 @@ function listTodos() {
 function doneTodo(index) {
   const todos = loadTodos();
   const i = index - 1;
-  if (i < 0 || i >= todos.length) {
+  if (i < 0 || i  todos.length) {
     console.log("Invalid todo number.");
     return;
   }
